@@ -11,13 +11,13 @@ class Reproducibility():
 
     def seed_everything(seed=None):
         """
-        Thanks to 
+        Thanks to
         https://www.kaggle.com/kunwar31/simple-lstm-with-identity-parameters-fastai/log
         https://www.kaggle.com/bminixhofer/simple-lstm-pytorch-version
-        
+
         """
         if seed is None:
-            seed = Reproducibility.RANDOM_SEED   
+            seed = Reproducibility.RANDOM_SEED
 
         random.seed(seed)
         os.environ['PYTHONHASHSEED'] = str(seed)

@@ -6,7 +6,7 @@ import pandas as pd
 class EvaluationMetrics:
     """
     Benchmark according to Kaggle competition evaluation
-    
+
     Thanks to https://www.kaggle.com/dborkan/benchmark-kernel
     """
     SUBGROUP_AUC = 'subgroup_auc'
@@ -16,7 +16,7 @@ class EvaluationMetrics:
     def compute_auc(y_true, y_pred):
         """
         Computes the AUC.
-        
+
         Note: this implementation is restricted to the binary classification task
         or multilabel classification task in label indicator format.
 
@@ -25,13 +25,13 @@ class EvaluationMetrics:
         ----------
         y_true : array, shape = [n_samples] or [n_samples, n_classes]
             True binary labels or binary label indicators.
-        
+
         y_pred : array, shape = [n_samples] or [n_samples, n_classes]
             Target scores, can either be probability estimates of the positive
             class, confidence values, or non-thresholded measure of decisions
             (as returned by "decision_function" on some classifiers). For binary
             y_true, y_score is supposed to be the score of the class with greater
-            label.        
+            label.
         """
         try:
             return metrics.roc_auc_score(y_true, y_pred)
@@ -40,7 +40,7 @@ class EvaluationMetrics:
 
     def compute_subgroup_auc(df, subgroup, label, model_name):
         """Computes the AUC for the within-subgroup positive and negative examples."""
-        subgroup_examples = df[(df[subgroup] > .5)]        
+        subgroup_examples = df[(df[subgroup] > .5)]
         return EvaluationMetrics.compute_auc(subgroup_examples[label], subgroup_examples[model_name])
 
     def compute_bpsn_auc(df, subgroup, label, model_name):
@@ -63,21 +63,21 @@ class EvaluationMetrics:
                                        label_col,
                                        include_asegs=False):
         """Computes per-subgroup metrics for all subgroups and one model."""
-        
+
         records = []
         for subgroup in subgroups:
             record = {
                 'subgroup': subgroup,
                 'subgroup_size': len(dataset[(dataset[subgroup] > 0.5)])
             }
-            
+
             record[EvaluationMetrics.SUBGROUP_AUC] = EvaluationMetrics.compute_subgroup_auc(dataset, subgroup, label_col, model)
             record[EvaluationMetrics.BPSN_AUC] = EvaluationMetrics.compute_bpsn_auc(dataset, subgroup, label_col, model)
             record[EvaluationMetrics.BNSP_AUC] = EvaluationMetrics.compute_bnsp_auc(dataset, subgroup, label_col, model)
             records.append(record)
-            
+
         return pd.DataFrame(records).sort_values('subgroup_auc', ascending=True)
-    
+
     def calculate_overall_auc(df, model_name, label_column):
         true_labels = df[label_column]
         predicted_labels = df[model_name]
@@ -93,4 +93,4 @@ class EvaluationMetrics:
             EvaluationMetrics.power_mean(bias_df[EvaluationMetrics.BPSN_AUC], POWER),
             EvaluationMetrics.power_mean(bias_df[EvaluationMetrics.BNSP_AUC], POWER)
         ])
-        return (OVERALL_MODEL_WEIGHT * overall_auc) + ((1 - OVERALL_MODEL_WEIGHT) * bias_score)    
+        return (OVERALL_MODEL_WEIGHT * overall_auc) + ((1 - OVERALL_MODEL_WEIGHT) * bias_score)
