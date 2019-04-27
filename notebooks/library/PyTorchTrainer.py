@@ -23,90 +23,89 @@ if not is_interactive():
     tqdm = nop
 
 class PyTorchTrainer():
-    
-    # TODO: Revisit enabling CUDA 
+
     def __init__(self, X_train, X_test, y_train, y_test, embedding_matrix, max_features, cudaEnabled = False):
         super().__init__()
-                
+
         print('Creating tensors')
         self.X_train = torch.tensor(X_train, dtype=torch.long)
         self.y_train = torch.tensor(np.vstack(y_train[:, np.newaxis]), dtype=torch.float32)
         self.X_test = torch.tensor(X_test, dtype=torch.long)
         self.y_test = torch.tensor(np.vstack(y_test[:, np.newaxis]), dtype=torch.float32)
-                 
+
         print('Creating model')
         self.model = NeuralNet(embedding_matrix, self.y_train.shape[-1], max_features)
-        
-#         if cudaEnabled:
-#             self.model.cuda()
-#             self.X_train = self.X_train.cuda()
-#             self.y_train = self.y_train.cuda()
-#             self.X_test = self.X_test.cuda() 
-#             self.y_test = self.y_test.cuda()
+
+        if cudaEnabled:
+            self.model.cuda()
+            self.X_train = self.X_train.cuda()
+            self.y_train = self.y_train.cuda()
+            self.X_test = self.X_test.cuda()
+            self.y_test = self.y_test.cuda()
+
         print('Creating datasets')
         self.train_dataset = data.TensorDataset(self.X_train, self.y_train)
         self.test_dataset = data.TensorDataset(self.X_test)
-        
+
     def _sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
 
-    def train_model(self, loss_fn = nn.BCEWithLogitsLoss(reduction='mean'), lr = 0.001, batch_size = 512, 
+    def train_model(self, loss_fn = nn.BCEWithLogitsLoss(reduction='mean'), lr = 0.001, batch_size = 512,
                     n_epochs = 1, enable_checkpoint_ensemble = True):
-               
+
         print('Training model')
-        
+
         output_dim= self.y_train.shape[-1]
-        
+
         param_lrs = [{'params': param, 'lr': lr} for param in self.model.parameters()]
         optimizer = torch.optim.Adam(param_lrs, lr=lr)
 
-        # provides several methods to adjust the learning rate based on the number of epochs. 
+        # provides several methods to adjust the learning rate based on the number of epochs.
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: 0.6 ** epoch)
 
         train_loader = torch.utils.data.DataLoader(self.train_dataset, batch_size=batch_size, shuffle=True)
         test_loader = torch.utils.data.DataLoader(self.test_dataset, batch_size=batch_size, shuffle=False)
-        
+
         all_test_preds = []
-        
+
         checkpoint_weights = [2 ** epoch for epoch in range(n_epochs)]
-        
+
         print(checkpoint_weights)
 
         for epoch in range(n_epochs):
-            
+
             print('Epoch {}'.format(n_epochs))
-            
+
             start_time = time.time()
 
             scheduler.step()
 
             self.model.train()
             avg_loss = 0.
-            
+
 
             counter = 0
-            
+
 
             for data in tqdm(train_loader, disable=False):
-                
+
                 counter += 1
-                
+
                 x_batch = data[:-1]
                 y_batch = data[-1]
 
                 y_pred = self.model(*x_batch)
-                
+
                 output_step = '\r {0:.2f}%'.format(counter * batch_size / len(self.train_dataset) * 100)
                 print(output_step, end="")
                 sys.stdout.flush()
-                
-                
+
                 loss = loss_fn(y_pred, y_batch)
 
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-                
+
                 avg_loss += loss.item() / len(train_loader)
 
             #sets the module in evaluation mode
@@ -120,13 +119,13 @@ class PyTorchTrainer():
                 test_preds[batch_lower_bound:batch_upper_bound, :] = y_pred
 
             all_test_preds.append(test_preds)
-            
+
             elapsed_time = time.time() - start_time
             print('Epoch {}/{} \t loss={:.4f} \t time={:.2f}s'.format(
                   epoch + 1, n_epochs, avg_loss, elapsed_time))
 
         if enable_checkpoint_ensemble:
-            test_preds = np.average(all_test_preds, weights=checkpoint_weights, axis=0)    
+            test_preds = np.average(all_test_preds, weights=checkpoint_weights, axis=0)
         else:
             test_preds = all_test_preds[-1]
 

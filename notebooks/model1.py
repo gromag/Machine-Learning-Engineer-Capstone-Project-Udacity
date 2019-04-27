@@ -10,12 +10,11 @@ from library.Embeddings import FastTextEmbeddings
 import os
 
 # SETTINGS
-kaggle_path_prefix = '../' if os.path.exists('../input') else ''
-fast_text_path = kaggle_path_prefix + 'input/crawl-300d-2M.vec'
-train_path = kaggle_path_prefix + 'input/train.csv'
-test_path = kaggle_path_prefix + 'input/test.csv'
-
-
+is_on_kaggle =  os.path.exists('../input')
+path_prefix = '../' if is_on_kaggle  else ''
+fast_text_path = path_prefix + 'input/crawl-300d-2M.vec'
+train_path = path_prefix + 'input/train.csv'
+test_path = path_prefix + 'input/test.csv'
 
 print('Seeding')
 Reproducibility.RANDOM_SEED = 1234
@@ -55,7 +54,7 @@ X_train, X_test, y_train, y_test =  data_sampler.train_test_split(tokenised_comm
 #Loading model trainer
 print('Loading model trainer')
 max_features = tokenizer.get_stats()[2] + 1
-trainer = PyTorchTrainer(X_train, X_test, y_train, y_test, embeddings, max_features )
+trainer = PyTorchTrainer(X_train, X_test, y_train, y_test, embeddings, max_features, cudaEnabled = is_on_kaggle )
 
 #Training
 print('Training')
@@ -63,7 +62,8 @@ output = trainer.train_model(n_epochs=1)
 
 #Coputing AUC
 print('Coputing AUC')
-EvaluationMetrics.compute_auc(y_test, output)
+auc = EvaluationMetrics.compute_auc(y_test, output)
+print(auc)
 
 
 TOXICITY_COLUMN = 'toxic'
