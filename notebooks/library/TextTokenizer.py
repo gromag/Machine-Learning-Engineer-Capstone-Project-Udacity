@@ -7,14 +7,14 @@ class TextTokenizer():
     UNKNOWN = '<UNKNOWN>'
     PADDING = ''
     MAXLEN = 100
-    def __init__(self, *corpora, num_words = None, maxlen=100, filters = '"()+-./:;<=>[\\]^_`{|}~\t\n', lower=False):
+    def __init__(self, train, test, num_words = None, maxlen=100, filters = '"()+-./:;<=>[\\]^_`{|}~\t\n', lower=False):
         super().__init__()
 
         self.filters = filters
         self.MAXLEN = maxlen
 
         # It expects to be passed both training and testing data
-        corpus = np.hstack((corpora))
+        corpus = train + test
 
         self.tokenizer = text.Tokenizer(num_words = num_words, filters = self.filters, lower=lower, oov_token= self.UNKNOWN)
         self.tokenizer.fit_on_texts(corpus)
@@ -89,3 +89,4 @@ class TextTokenizer():
                 unknown_words.append(word)
 
         return embedding_matrix, unknown_words
+
