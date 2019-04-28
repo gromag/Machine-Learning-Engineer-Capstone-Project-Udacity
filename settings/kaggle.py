@@ -1,5 +1,9 @@
 # KAGGLE SETTINGS
 import os
+import time
+import gc
+
+# SETTINGS
 TOXICITY_COLUMN = 'toxic'
 IS_ON_KAGGLE =  os.path.exists('../input')
 PATH_PREFIX = '../' if IS_ON_KAGGLE  else ''
