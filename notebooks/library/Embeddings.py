@@ -62,11 +62,20 @@ class FastTextEmbeddings(AbstractEmbeddings):
         fin = io.open(self.path, 'r', encoding='utf-8', newline='\n', errors='ignore')
         n, d = map(int, fin.readline().split())
 
-        data = {}
-        for index, line in enumerate(fin):
+        length = n
 
-            if (index == self.MAX_EMBEDDINGS_COUNT):
-                break
+        if(self.MAX_EMBEDDINGS_COUNT != -1):
+            length = self.MAX_EMBEDDINGS_COUNT
+
+        data = {}
+
+        for index in range(length):
+            line = fin.readline()
+
+        # for index, line in enumerate(fin):
+
+        #     if (index == self.MAX_EMBEDDINGS_COUNT):
+        #         break
 
             tokens = line.rstrip().split(' ')
             data[tokens[0]] = list(map(float, tokens[1:]))
@@ -78,9 +87,6 @@ class FastTextEmbeddings(AbstractEmbeddings):
         self._average_embedding = arr.mean(axis=0)
         self._words = np.array([a for a in self.embeddings])
 
-        length = n
 
-        if(self.MAX_EMBEDDINGS_COUNT != -1):
-            length = self.MAX_EMBEDDINGS_COUNT
 
         self._dim = (length, d)

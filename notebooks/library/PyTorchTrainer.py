@@ -24,14 +24,13 @@ if not is_interactive():
 
 class PyTorchTrainer():
 
-    def __init__(self, X_train, X_test, y_train, y_test, embedding_matrix, max_features, cudaEnabled = False):
+    def __init__(self, X_train, X_test, y_train, embedding_matrix, max_features, cudaEnabled = False):
         super().__init__()
 
         print('Creating tensors')
         self.X_train = torch.tensor(X_train, dtype=torch.long)
         self.y_train = torch.tensor(np.vstack(y_train[:, np.newaxis]), dtype=torch.float32)
         self.X_test = torch.tensor(X_test, dtype=torch.long)
-        self.y_test = torch.tensor(np.vstack(y_test[:, np.newaxis]), dtype=torch.float32)
 
         print('Creating model')
         self.model = NeuralNet(embedding_matrix, self.y_train.shape[-1], max_features)
@@ -41,7 +40,6 @@ class PyTorchTrainer():
             self.X_train = self.X_train.cuda()
             self.y_train = self.y_train.cuda()
             self.X_test = self.X_test.cuda()
-            self.y_test = self.y_test.cuda()
 
         print('Creating datasets')
         self.train_dataset = data.TensorDataset(self.X_train, self.y_train)
