@@ -2,6 +2,7 @@
 import io
 import os
 import numpy as np
+import gc
 
 class AbstractEmbeddings():
 
@@ -41,9 +42,9 @@ class AbstractEmbeddings():
 
         return (self.embeddings[word], True)
 
-    def get_all_words(self):
+    # def get_all_words(self):
 
-        return self._words
+    #     return self._words
 
     def shape(self):
         return self._dim
@@ -66,27 +67,29 @@ class FastTextEmbeddings(AbstractEmbeddings):
 
         if(self.MAX_EMBEDDINGS_COUNT != -1):
             length = self.MAX_EMBEDDINGS_COUNT
+            
+        print('Fasttext dim: {}'.format((length, d)))
 
         data = {}
 
         for index in range(length):
             line = fin.readline()
 
-        # for index, line in enumerate(fin):
-
-        #     if (index == self.MAX_EMBEDDINGS_COUNT):
-        #         break
-
             tokens = line.rstrip().split(' ')
-            data[tokens[0]] = list(map(float, tokens[1:]))
-
+            # data[tokens[0]] = list(map(float, tokens[1:])) <- MEMORY HUNGRY
+            # MEMORY EFFICIENT below
+            data[tokens[0]] = np.asarray(tokens[1:], dtype='float32')
+            
+            if index % 10000 == 0:
+                print('Fasttext loaded {} words'.format(index))
+        
+        fin.close()
+        
         self.embeddings  = data
+        print('Fasttext embedding loaded')
 
         # Gathering further datapoints
         arr = np.array([self.embeddings[a] for a in self.embeddings])
         self._average_embedding = arr.mean(axis=0)
-        self._words = np.array([a for a in self.embeddings])
-
-
-
+        # self._words = np.array([a for a in self.embeddings])
         self._dim = (length, d)
