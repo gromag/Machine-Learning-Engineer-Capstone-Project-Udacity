@@ -1,11 +1,9 @@
-# ObsceneTextPreprocessor
 import nltk
 from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 import re
 import string
-#Download stopwords
-nltk.download('stopwords')
+
 
 
 class ObsceneTextPreprocessor():
@@ -22,8 +20,9 @@ class ObsceneTextPreprocessor():
 
         self.lower = lower
         #Use the English stopword list
-        stop_words = set(stopwords.words('english'))
-        self.stop_words = [w for w in stop_words if (not w in self.leave_words)]
+        self.__load_stopwords()
+        # stop_words = set(stopwords.words('english'))
+        self.stop_words = [w for w in self.stop_words if (not w in self.leave_words)]
 
 
     def __lower_fn(self, w):
@@ -31,6 +30,10 @@ class ObsceneTextPreprocessor():
             return w.lower()
         return w
 
+    def __load_stopwords(self):
+        f = open('../input/stopwords/english', 'r')
+        self.stop_words = f.readlines()
+        f.close()
 
     def clean(self, data):
 
@@ -39,5 +42,3 @@ class ObsceneTextPreprocessor():
             return out
 
         return [' '.join(p(doc)) for doc in data]
-
-
