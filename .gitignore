@@ -1,2 +1,5 @@
 *checkpoint.ipynb
 *input/*.csv
+*input/*
+*.pyc
+modelbuild*
