@@ -9,6 +9,7 @@ import sys
 import os
 import numpy as np
 from library.LSTM import NeuralNet
+import math
 
 
 # disable progress bars when submitting
@@ -94,9 +95,11 @@ class PyTorchTrainer():
 
                 y_pred = self.model(*x_batch)
 
-                output_step = '\r {0:.2f}%'.format(counter * batch_size / len(self.train_dataset) * 100)
-                print(output_step, end="")
-                sys.stdout.flush()
+                # Output max 20 times per epoch
+                if (counter * batch_size) % math.floor(len(self.train_dataset)/20) < batch_size:
+                    output_step = '\r {0:.2f}%'.format(counter * batch_size / len(self.train_dataset) * 100)
+                    print(output_step, end="")
+                    sys.stdout.flush()
 
                 loss = loss_fn(y_pred, y_batch)
 
