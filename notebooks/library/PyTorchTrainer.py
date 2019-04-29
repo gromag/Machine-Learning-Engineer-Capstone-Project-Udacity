@@ -3,8 +3,6 @@ from torch import nn
 from torch.utils import data
 from torch.nn import functional as F
 import time
-# TODO remove is not used
-from tqdm._tqdm_notebook import tqdm_notebook as tqdm
 import sys
 import os
 import numpy as np
@@ -12,16 +10,6 @@ from library.LSTM import NeuralNet
 import math
 
 
-# disable progress bars when submitting
-def is_interactive():
-    return 'SHLVL' not in os.environ
-
-if not is_interactive():
-    print('Not interactive mode')
-    def nop(it, *a, **k):
-        return it
-
-    tqdm = nop
 
 class PyTorchTrainer():
 
@@ -86,7 +74,7 @@ class PyTorchTrainer():
             counter = 0
 
 
-            for data in tqdm(train_loader, disable=False):
+            for data in train_loader:
 
                 counter += 1
 
