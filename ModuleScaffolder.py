@@ -4,16 +4,11 @@ import regex
 
 
 PATH = './notebooks/library/'
+DOTTED_LINE =      '# ---------------------------------------------------------------\n' 
+SEPARATOR = '\n\n' +\
+            '# ----------------- SECTION AUTO ASSEMBLED ----------------------\n' + DOTTED_LINE
 
 def build(output_module_name = None, local_model_name = None):
-    
-    files = os.listdir(PATH)
-    separator = '\n\n' +\
-                '# ----------------- SECTION AUTO ASSEMBLED ----------------------\n' +\
-                '# ---------------------------------------------------------------\n' 
-    
-    if output_module_name is None:
-        output_module_name = 'modelbuild' + str(random.randint(1, 100000)) + '.py'
 
     def read_file(file):
         f = open(file, "r")
@@ -28,19 +23,28 @@ def build(output_module_name = None, local_model_name = None):
         if local_model_name is not None:
             m = read_file(local_model_name)
             m = m.split('# AUTO-REMOVE-ABOVE')[1]
-            content += separator + m
+            content += SEPARATOR + m
         return content
 
 
+
+    
+    if output_module_name is None:
+        output_module_name = 'modelbuild' + str(random.randint(1, 100000)) + '.py'
+
+    files = os.listdir(PATH)
+    
     content = ''
+
+    content += read_file('./settings/kaggle.py')
 
     for file in files:
         if(not file.endswith('.py')):
             continue
-        content +=  separator + read_file(PATH + file)
+        content +=  SEPARATOR + read_file(PATH + file)
 
 
-    content += separator + read_file('./settings/kaggle.py')
+    content += SEPARATOR + DOTTED_LINE + DOTTED_LINE + DOTTED_LINE
 
     content = load_model(content)
 
