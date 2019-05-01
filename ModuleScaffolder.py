@@ -11,9 +11,9 @@ import regex
 
 
 PATH = './notebooks/library/'
-DOTTED_LINE = '# ---------------------------------------------------------------\n' 
-SEPARATOR = '\n\n' +\
-              '# ----------------- SECTION AUTO ASSEMBLED ----------------------\n' + DOTTED_LINE
+DOTTED_LINE = '# ---------------------------------------------------------------' 
+LF = "\n"
+DBL_LF = LF + LF
 
 def build(output_module_name = None, local_model_name = None):
     """
@@ -25,6 +25,8 @@ def build(output_module_name = None, local_model_name = None):
     output_module_name: (optional) the name of the file being outputed
     local_model_name: (required) the name of the model orchestrator file
     """
+
+    # Closures
 
     def read_file(file):
         f = open(file, "r")
@@ -39,25 +41,27 @@ def build(output_module_name = None, local_model_name = None):
         if local_model_name is not None:
             m = read_file(local_model_name)
             m = m.split('# AUTO-REMOVE-ABOVE')[1]
-            content += SEPARATOR + m
+            content += m
         return content
+
+    # Start function body
 
     if output_module_name is None:
         output_module_name = 'modelbuild' + str(random.randint(1, 100000)) + '.py'
-
-    files = os.listdir(PATH)
     
-    content = ''
+    content = "# SETTINGS SECTION" + LF + DOTTED_LINE + LF
 
     content += read_file('./settings/kaggle.py')
+
+    content +=  DBL_LF + LF +  "# AUTO ASSEMBLED CLASS IMPORT SECTION " + LF + DOTTED_LINE + LF
+
+    files = os.listdir(PATH)
 
     for file in files:
         if(not file.endswith('.py')):
             continue
-        content +=  SEPARATOR + read_file(PATH + file)
+        content += DBL_LF + '# ' + file + LF + DOTTED_LINE + DBL_LF + read_file(PATH + file) + LF
 
-
-    content += SEPARATOR + DOTTED_LINE + DOTTED_LINE + DOTTED_LINE
 
     content = load_model(content)
 
