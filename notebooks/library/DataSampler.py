@@ -71,11 +71,12 @@ class DataSampler():
         (X_train, X_test, y_train, y_test)
 
         """
+        X = self.data[X_columns]
+        y = self.data[y_column]
+        
         assert(len(X) == len(y))
         assert(sample_percent > 0 and sample_percent <=1)
 
-        X = self.data[X_columns]
-        y = self.data[y_column]
 
         assert(rows_filter is None or len(rows_filter) == len(X))
 
