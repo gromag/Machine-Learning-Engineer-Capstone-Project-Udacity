@@ -80,7 +80,7 @@ class FastTextEmbeddings(AbstractEmbeddings):
             # MEMORY EFFICIENT below
             data[tokens[0]] = np.asarray(tokens[1:], dtype='float32')
             
-            if index % 10000 == 0:
+            if index % (length/20) == 0:
                 print('Fasttext loaded {} words'.format(index))
         
         fin.close()
