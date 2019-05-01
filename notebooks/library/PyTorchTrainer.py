@@ -20,30 +20,29 @@ class PyTorchTrainer():
     epoch_log_summary = []
     
 
-    def __init__(self, X_train, X_test, y_train, embedding_matrix, max_features, cudaEnabled = False):
+    def __init__(self, X_train, y_train, embedding_matrix, max_features, cudaEnabled = False):
         super().__init__()
+
+        self.cudaEnabled = cudaEnabled
 
         print('Creating tensors')
         # Setting up the various Pytorch tensors
         self.X_train = torch.tensor(X_train, dtype=torch.long)
         self.y_train = torch.tensor(np.vstack(y_train[:, np.newaxis]), dtype=torch.float32)
-        self.X_test = torch.tensor(X_test, dtype=torch.long)
 
         print('Creating model')
         # Initialising the Neural Network
         self.model = NeuralNet(embedding_matrix, self.y_train.shape[-1], max_features)
 
         # Converting the tensor into cuda tensors if GPU is available
-        if cudaEnabled:
+        if self.cudaEnabled:
             self.model.cuda()
             self.X_train = self.X_train.cuda()
             self.y_train = self.y_train.cuda()
-            self.X_test = self.X_test.cuda()
 
         print('Creating datasets')
         # Packaging multiple tensors into PyTorch TensorDataset
         self.train_dataset = data.TensorDataset(self.X_train, self.y_train)
-        self.test_dataset = data.TensorDataset(self.X_test)
 
     def _sigmoid(self, x):
         """
@@ -51,7 +50,7 @@ class PyTorchTrainer():
         """
         return 1 / (1 + np.exp(-x))
 
-    def train_and_test(self, loss_fn = nn.BCEWithLogitsLoss(reduction='mean'), learning_rate = 0.001, batch_size = 512,
+    def train_and_test(self, X_test, loss_fn = nn.BCEWithLogitsLoss(reduction='mean'), learning_rate = 0.001, batch_size = 512,
                     n_epochs = 1, enable_checkpoint_ensemble = True):
 
         """
@@ -82,6 +81,8 @@ class PyTorchTrainer():
             performed at each epoch or just the last model prediction
 
         """
+        #  Packaging test dataset into PyTorch TensorDataset 
+        test_dataset = self._convert_to_tensor_dataset(X_test)
 
         all_test_preds = []
         # calculating a different weight to be used to calculate a weighed average prediction 
@@ -89,7 +90,7 @@ class PyTorchTrainer():
 
         # closure passed to to the train function to be executed at the end of each batch
         # it predicts on the test set and stores the predictions
-        predict_closure = lambda: all_test_preds.append(self.predict( self.test_dataset, batch_size = batch_size ))
+        predict_closure = lambda: all_test_preds.append(self.predict( test_dataset, batch_size = batch_size ))
 
         # Calling the train function
         self.train(loss_fn, learning_rate, batch_size, n_epochs, predict_closure)
@@ -150,7 +151,7 @@ class PyTorchTrainer():
             # Execution metrics gathering
             start_time = time.time()
 
-            print('Starting Epoch {}'.format(epoch))
+            print('\nStarting Epoch {}'.format(epoch + 1))
 
             # Decays the learning rate
             scheduler.step()
@@ -261,7 +262,16 @@ class PyTorchTrainer():
         if is_time_to_log:
             # Calculates the percent of progress so far
             progress = counter * batch_size / len(self.train_dataset) * 100
-            print('{:.2f}' % progress, end="")
-            sys.stdout.flush()
+            print('{0:.2f}'.format(progress))
+
+    
+    def convert_to_tensor_dataset(self, X_data):
+        
+        pdata = torch.tensor(X_data, dtype=torch.long)
+
+        if self.cudaEnabled:
+            pdata = pdata.cuda()
+
+        return data.TensorDataset(pdata)
 
 
