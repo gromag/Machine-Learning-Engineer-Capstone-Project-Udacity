@@ -5,8 +5,12 @@ from torch.nn import functional as F
 import time
 from tqdm._tqdm_notebook import tqdm_notebook as tqdm
 
-# TODO: add credits
 class NeuralNet(nn.Module):
+    """
+    
+     The code of this class is based on Benjamin Minixhofer's Kernel:
+     https://www.kaggle.com/bminixhofer/simple-lstm-pytorch-version
+    """
 
     def __init__(self, embedding_matrix, num_aux_targets, max_features, LSTM_UNITS = 128, DENSE_HIDDEN_LAYERS = 4):
         super(NeuralNet, self).__init__()
@@ -14,7 +18,6 @@ class NeuralNet(nn.Module):
         print('Neural Net initialising')
 
         DENSE_HIDDEN_UNITS = 4 * LSTM_UNITS
-
 
         embed_size = embedding_matrix.shape[1]
 
@@ -58,7 +61,9 @@ class NeuralNet(nn.Module):
 
         result = self.linear_out(hidden)
         aux_result = self.linear_aux_out(hidden)
-        out = torch.cat([result, aux_result], 1)
+       
+       
+        out = torch.cat([aux_result, result], 1)
 
         return result
 
