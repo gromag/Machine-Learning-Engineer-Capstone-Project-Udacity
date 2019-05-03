@@ -13,8 +13,9 @@ TEST_PATH = PATH_PREFIX + 'input/jigsaw-unintended-bias-in-toxicity-classificati
 STOP_WORDS_PATH = PATH_PREFIX + 'input/stopwords/english'
 SAMPLE_PERCENT = 0.001
 TEST_SAMPLE_PERCENT = 0.001
-EPOCHS = 3
+EPOCHS = 1
 TEXT_TOKEN_LENGTH = 100
+TRAIN_TEST_SPLIT_PERCENT = 0.2
 
 # Imports
 
@@ -107,7 +108,7 @@ print('Finished in {} sec'.format(time.time() - s))
 # -----------------------------------------------------------------
 print('Splitting data for Train / Test')
 s = time.time()
-X_train, X_valid, y_train, y_valid =  train_data_sampler.train_test_split(tokenised_train_comments, train_data_sampler.data()['toxic'], test_size = 0.1  )
+X_train, X_valid, y_train, y_valid =  train_data_sampler.train_test_split(tokenised_train_comments, train_data_sampler.data()['toxic'], test_size = TRAIN_TEST_SPLIT_PERCENT  )
 X_test = tokenised_test_comments
 print('Finished in {} sec'.format(time.time() - s))
 
@@ -115,8 +116,8 @@ print('Finished in {} sec'.format(time.time() - s))
 
 # Memory freeing
 # -----------------------------------------------------------------
-del train_data_sampler, explore
-gc.collect()
+# del explore
+# gc.collect()
 
 
 
@@ -150,7 +151,7 @@ gc.collect()
 # -----------------------------------------------------------------
 print('Loading model trainer')
 s = time.time()
-max_features = tokenizer.get_stats()[2] + 1
+max_features = tokenizer.get_dictionary_size()
 trainer = PyTorchTrainer(X_train, y_train, embeddings, max_features, cudaEnabled = IS_ON_KAGGLE )
 print('Finished in {} sec'.format(time.time() - s))
 
