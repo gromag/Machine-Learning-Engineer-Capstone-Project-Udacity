@@ -73,6 +73,14 @@ class TextTokenizer():
         """
         return (self.document_count, self.all_words_count, len(self.tokenizer.word_index))
 
+    def get_dictionary_size(self):
+        """
+        Returns the size of the dictionary, that is the length of 
+        word_index plus 1 to account for the unknown word
+        
+        """
+        return len(self.tokenizer.word_index) + 1
+
     def build_embedding_matrix(self, embeddings):
         print('Building matrix')
 

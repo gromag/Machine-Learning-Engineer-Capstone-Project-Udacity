@@ -195,7 +195,7 @@ class PyTorchTrainer():
                 avg_loss += loss.item() / len(train_loader)
 
                 # Logging to console percent of epoch traning done
-                self._log_epoch_progress(counter, batch_size, max_logs = 20)
+                self._log_epoch_progress(counter, batch_size, max_logs = 10)
 
             # Logging current epoch summary
             elapsed_time = time.time() - start_time
@@ -256,7 +256,7 @@ class PyTorchTrainer():
 
     def _log_epoch_progress(self, counter, batch_size, max_logs = 20):
         
-        # Evaluates to true maximum the passed in max_logs number of times 
+        # Evaluates to true/false: based on the max_logs determines if it is time to log 
         is_time_to_log = (counter * batch_size) % math.floor(len(self.train_dataset)/max_logs) < batch_size
         
         if is_time_to_log:
