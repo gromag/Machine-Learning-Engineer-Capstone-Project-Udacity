@@ -46,7 +46,7 @@ class PyTorchTrainer():
 
     def _sigmoid(self, x):
         """
-        Sigmoid function that converts a real number to one of value between 0-1
+        Sigmoid function, a differentiable function that converts a real number to one of value between 0-1
         """
         return 1 / (1 + np.exp(-x))
 

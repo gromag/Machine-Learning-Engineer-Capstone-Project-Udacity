@@ -12,33 +12,52 @@ class NeuralNet(nn.Module):
      https://www.kaggle.com/bminixhofer/simple-lstm-pytorch-version
     """
 
-    def __init__(self, embedding_matrix, num_aux_targets, max_features, LSTM_UNITS = 128, DENSE_HIDDEN_LAYERS = 4):
+    def __init__(self, embedding_matrix, num_aux_targets, dict_length, lstm_output_dim = 128, embeddings_spacial_dropout=0.3):
+        """
+        
+        Parameters:
+        ---------------
+        embedding_matrix:  a matrix containing the word embeddings with dimension (h, w) where 
+            `h` is the length of the dictionary,
+            `w` is each single word dimension in a vectorial space
+        dict_length: dictionary size
+
+        """
+
         super(NeuralNet, self).__init__()
 
         print('Neural Net initialising')
 
-        DENSE_HIDDEN_UNITS = 4 * LSTM_UNITS
 
-        embed_size = embedding_matrix.shape[1]
+        # retrieving the length of the vector representing each word
+        # this is going to be the first LSTM layer input dimension
+        word_vect_dimension = embedding_matrix.shape[1]
 
         print('Creating embeddings')
-        self.embedding = nn.Embedding(max_features, embed_size)
+        self.embedding = nn.Embedding(dict_length, word_vect_dimension)
         self.embedding.weight = nn.Parameter(torch.tensor(embedding_matrix, dtype=torch.float32))
+        # We are using a pre-trained embedding layer so we don't 
+        # want to update weights during  backpropagation
         self.embedding.weight.requires_grad = False
-        self.embedding_dropout = SpatialDropout(0.3)
+        self.embedding_dropout = SpatialDropout(embeddings_spacial_dropout)
 
 
         print('Creatingg LSTMs')
-        self.lstm1 = nn.LSTM(embed_size, LSTM_UNITS, bidirectional=True, batch_first=True)
-        self.lstm2 = nn.LSTM(LSTM_UNITS * 2, LSTM_UNITS, bidirectional=True, batch_first=True)
+        is_bidirectional = True
+        direction_count = 2 if is_bidirectional else 1
+        self.lstm1 = nn.LSTM(word_vect_dimension, lstm_output_dim, bidirectional= is_bidirectional, batch_first=True)
+        self.lstm2 = nn.LSTM(lstm_output_dim * direction_count, lstm_output_dim, bidirectional = is_bidirectional , batch_first=True)
 
         print('Creating linear')
-        self.linear1 = nn.Linear(DENSE_HIDDEN_UNITS, DENSE_HIDDEN_UNITS)
-        self.linear2 = nn.Linear(DENSE_HIDDEN_UNITS, DENSE_HIDDEN_UNITS)
+        num_of_previous_layers = 2
+        linear_in_out_dim = num_of_previous_layers * lstm_output_dim  * direction_count
+
+        self.linear1 = nn.Linear(linear_in_out_dim, linear_in_out_dim)
+        self.linear2 = nn.Linear(linear_in_out_dim, linear_in_out_dim)
 
         print('Creating output')
-        self.linear_out = nn.Linear(DENSE_HIDDEN_UNITS, 1)
-        self.linear_aux_out = nn.Linear(DENSE_HIDDEN_UNITS, num_aux_targets)
+        self.linear_out = nn.Linear(linear_in_out_dim, 1)
+        self.linear_aux_out = nn.Linear(linear_in_out_dim, num_aux_targets)
 
     def forward(self, x):
 
