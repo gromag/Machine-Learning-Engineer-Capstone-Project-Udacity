@@ -67,21 +67,47 @@ class TextTokenizer():
         """
         Gets stats of the corpus tokenised.
 
-        Returns
-        -----
+        Returns:
+        ---------------
+
         Tuple: (document_count, all_words_count, unique_words_count)
         """
         return (self.document_count, self.all_words_count, len(self.tokenizer.word_index))
 
     def get_dictionary_size(self):
         """
-        Returns the size of the dictionary, that is the length of 
+        Returns:
+        ---------------
+
+        Scalar: the size of the dictionary, that is the length of 
         word_index plus 1 to account for the unknown word
         
         """
         return len(self.tokenizer.word_index) + 1
 
     def build_embedding_matrix(self, embeddings):
+        """
+        Creates a matrix of shape (len(dictionary), len(embeddings_dimension))
+        Where every word in the dictionary is converted into a vector based 
+        on the passed embeddings mapping.
+
+        Parameters:
+        ---------------
+
+        embeddings: a class implementing AbstractEmbeddings class, holding
+            pre-trained word embeddings
+
+        Returns:
+        ---------------
+
+        Tuple: (a, b) 
+            where `a` is the embeddings matrix, that is a matrix
+                with dimension (h, w) where `h` is the length of the dictionary,
+                `w` is each single word dimension in a vectorial space;
+            and `b` is a list of unknown words
+        
+        """
+
         print('Building matrix')
 
         emb_width = embeddings.shape()[-1]
