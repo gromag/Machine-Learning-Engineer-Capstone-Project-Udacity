@@ -10,7 +10,7 @@ import os
 import regex
 
 
-PATH = './notebooks/library/'
+PATH = './library/'
 DOTTED_LINE = '# ---------------------------------------------------------------' 
 LF = "\n"
 DBL_LF = LF + LF
@@ -51,7 +51,7 @@ def build(output_module_name = None, local_model_name = None):
     
     content = "# SETTINGS SECTION" + LF + DOTTED_LINE + LF
 
-    content += read_file('./settings/kaggle.py')
+    content += read_file('../settings/kaggle.py')
 
     content +=  DBL_LF + LF +  "# AUTO ASSEMBLED CLASS IMPORT SECTION " + LF + DOTTED_LINE + LF
 
