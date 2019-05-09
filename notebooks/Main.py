@@ -108,7 +108,7 @@ print('Finished in {} sec'.format(time.time() - s))
 # -----------------------------------------------------------------
 print('Splitting data for Train / Test')
 s = time.time()
-X_train, X_valid, y_train, y_valid =  train_data_sampler.train_test_split(tokenised_train_comments, train_data_sampler.data()['toxic'], test_size = TRAIN_TEST_SPLIT_PERCENT  )
+X_train, X_valid, y_train, y_valid =  train_data_sampler.train_test_split(tokenised_train_comments, train_data_sampler.data()[['toxic']+ explore.subgroup_columns], test_size = TRAIN_TEST_SPLIT_PERCENT  )
 X_test = tokenised_test_comments
 print('Finished in {} sec'.format(time.time() - s))
 

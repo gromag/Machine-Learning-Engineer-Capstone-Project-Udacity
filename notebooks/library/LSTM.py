@@ -7,8 +7,23 @@ from tqdm._tqdm_notebook import tqdm_notebook as tqdm
 
 class NeuralNet(nn.Module):
     """
-    
-     The code of this class is based on Benjamin Minixhofer's Kernel:
+     Neural Network comprised of 3 main components:
+
+     An embeddings layer, non trainable which holds the embeddings vectors as parameters, 
+     it provides a look up for each words so to be converted from a dictionary index to a 
+     pre-trained embedding vector.
+
+     Two bidirectional LSTM layers. The bidirectional flag allows both earlier and later 
+     words to provide cell state to the cell at time step t.
+
+     Global average pooling followed by a max pooling.
+
+     The result is 
+
+     Two fully connected linear layers with identical input and output dimensions.
+
+
+     Credits go to Benjamin Minixhofer, as this class is based on Benjamin's Kernel:
      https://www.kaggle.com/bminixhofer/simple-lstm-pytorch-version
     """
 
@@ -81,10 +96,9 @@ class NeuralNet(nn.Module):
         result = self.linear_out(hidden)
         aux_result = self.linear_aux_out(hidden)
        
-       
-        out = torch.cat([aux_result, result], 1)
+        out = torch.cat([result, aux_result], 1)
 
-        return result
+        return out
 
 class SpatialDropout(nn.Dropout2d):
     def forward(self, x):

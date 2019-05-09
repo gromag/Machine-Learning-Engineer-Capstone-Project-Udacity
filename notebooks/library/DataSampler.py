@@ -52,7 +52,7 @@ class DataSampler():
 
         return (X_train, X_valid, y_train, y_valid)
 
-    def train_test_split_by_columns(self, X_columns, y_column, rows_filter = None, sample_percent = 1, test_size = 0.2):
+    def train_test_split_by_columns(self, X_columns, y_columns, rows_filter = None, sample_percent = 1, test_size = 0.2):
 
         """
         Split train data into `train` `test` set
@@ -72,7 +72,7 @@ class DataSampler():
 
         """
         X = self.data[X_columns]
-        y = self.data[y_column]
+        y = self.data[y_columns]
         
         assert(len(X) == len(y))
         assert(sample_percent > 0 and sample_percent <=1)

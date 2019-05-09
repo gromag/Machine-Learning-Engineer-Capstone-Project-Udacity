@@ -24,6 +24,7 @@ class JigsawExploratoryAnalysis(ExploratoryAnalysis):
                     'white', 'psychiatric_or_mental_illness']
 
     TOXIC_COLUMN = 'toxic'
+    COMMENT_COLUMN = 'comment_text'
 
     def __init__(self, train_path = None, test_path = None, train = None, test = None):
         super().__init__(train_path, test_path, train, test)
@@ -59,7 +60,7 @@ class JigsawExploratoryAnalysis(ExploratoryAnalysis):
         toxic_stats = pd.DataFrame(columns=["identity", "toxic_count", "count", "toxic_percent", "na_count"])
 
         for index, col in enumerate(JigsawExploratoryAnalysis.identity_columns):
-            toxic_stats.loc[index] = explore.__calculate_toxic_stats_for_column(col, threshold)
+            toxic_stats.loc[index] = self.__calculate_toxic_stats_for_column(col, threshold)
 
         return toxic_stats
 

@@ -28,7 +28,8 @@ class PyTorchTrainer():
         print('Creating tensors')
         # Setting up the various Pytorch tensors
         self.X_train = torch.tensor(X_train, dtype=torch.long)
-        self.y_train = torch.tensor(np.vstack(y_train[:, np.newaxis]), dtype=torch.float32)
+        # self.y_train = torch.tensor(np.vstack(y_train.iloc[:, np.newaxis]), dtype=torch.float32)
+        self.y_train = torch.tensor(np.hstack([y_train]), dtype=torch.float32)
 
         print('Creating model')
         # Initialising the Neural Network
@@ -98,10 +99,10 @@ class PyTorchTrainer():
 
         if enable_checkpoint_ensemble:
             # test set prediction is the result of the weighted average of different predictions
-            test_preds = np.average(all_test_preds, weights=checkpoint_weights, axis=0)
+            test_preds = [np.average(all_test_preds, weights=checkpoint_weights, axis=0)]
         else:
             # test set prediction is the result of the last epoch's prediction
-            test_preds = all_test_preds[-1]
+            test_preds = all_test_preds
 
         return test_preds
 
@@ -244,7 +245,7 @@ class PyTorchTrainer():
         # Resetting the model to train mode
         self.model.train()
 
-        return test_preds
+        return test_preds[:, 0]
 
     def _log_epoch_summary(self, epoch, n_epochs, avg_loss, elapsed_time):
        
