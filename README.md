@@ -11,7 +11,6 @@ Download the data from https://www.kaggle.com/c/12500/download-all, unzip and pl
 
 ### Python package requirements
 
-Below are the Python package requirements:
 
 ```torch
  keras
@@ -21,8 +20,8 @@ Below are the Python package requirements:
  nltk
 ```
 
-### Main file
+### Entry file
 
 ```
- Notebooks/Main.py
+ /notebooks/Main.py
 ```
