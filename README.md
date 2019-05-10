@@ -2,7 +2,7 @@
 
 ## Udacity MachineLearning Engineer Capstone Project
 
-Project from the Kaggle competition: [Jigsaw unintended bias in toxicity classification](https://www.kaggle.com/c/jigsaw-unintended-bias-in-toxicity-classification/overview)_
+Project from the Kaggle competition: [Jigsaw unintended bias in toxicity classification](https://www.kaggle.com/c/jigsaw-unintended-bias-in-toxicity-classification/overview)
 
 
 ### Acquiring the data
