@@ -27,7 +27,8 @@ Download the data from https://www.kaggle.com/c/12500/download-all, unzip and pl
 
 ### Python package requirements
 
-```torch
+```
+ torch
  keras
  sklearn
  numpy
