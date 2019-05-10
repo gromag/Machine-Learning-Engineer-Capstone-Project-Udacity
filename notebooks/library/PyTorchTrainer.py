@@ -33,7 +33,7 @@ class PyTorchTrainer():
 
         print('Creating model')
         # Initialising the Neural Network
-        self.model = NeuralNet(embedding_matrix, self.y_train.shape[-1], max_features)
+        self.model = NeuralNet(embedding_matrix, (self.y_train.shape[-1] - 1), max_features)
 
         # Converting the tensor into cuda tensors if GPU is available
         if self.cudaEnabled:
