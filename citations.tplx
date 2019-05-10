@@ -13,17 +13,3 @@
 \bibliographystyle{plain}
 \bibliography{ref}
 ((* endblock bibliography *))
-
-
-((* block output_group *))
-((*- if cell.metadata.hide_output or nb.metadata.hide_input -*))
-((*- else -*))
-    ((( super() )))
-((*- endif -*))
-((* endblock output_group *))
-
-((* block input_group *))
-    ((*- if cell.metadata.get('nbconvert', {}).get('show_code', False) -*))
-        ((( super() )))
-    ((*- endif -*))
-((* endblock input_group *))
