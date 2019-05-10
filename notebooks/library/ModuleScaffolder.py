@@ -8,6 +8,7 @@ what is in the Kernel editor.
 import random
 import os
 import regex
+from datetime import datetime
 
 
 PATH = './library/'
@@ -47,7 +48,9 @@ def build(output_module_name = None, local_model_name = None):
     # Start function body
 
     if output_module_name is None:
-        output_module_name = 'modelbuild' + str(random.randint(1, 100000)) + '.py'
+        now = datetime.now()
+        time = now.strftime("%Y-%m-%d %H:%M:%S")
+        output_module_name = 'modelbuild ' + time + '.py'
     
     content = "# SETTINGS SECTION" + LF + DOTTED_LINE + LF
 
@@ -67,7 +70,7 @@ def build(output_module_name = None, local_model_name = None):
 
     content = replace_imports(content)
 
-    out = open(output_module_name, 'w')
+    out = open('../kaggle_submitted_models/' + output_module_name, 'w')
     out.write(content)
     out.close()
 
