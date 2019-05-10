@@ -3,7 +3,6 @@ from torch import nn
 from torch.utils import data
 from torch.nn import functional as F
 import time
-from tqdm._tqdm_notebook import tqdm_notebook as tqdm
 
 class NeuralNet(nn.Module):
     """
@@ -27,7 +26,7 @@ class NeuralNet(nn.Module):
      https://www.kaggle.com/bminixhofer/simple-lstm-pytorch-version
     """
 
-    def __init__(self, embedding_matrix, num_aux_targets, dict_length, lstm_output_dim = 128, embeddings_spacial_dropout=0.3):
+    def __init__(self, embedding_matrix, num_aux_targets, dict_length, lstm_output_dim = 90, embeddings_spacial_dropout=0.3):
         """
         
         Parameters:
@@ -62,10 +61,11 @@ class NeuralNet(nn.Module):
         direction_count = 2 if is_bidirectional else 1
         self.lstm1 = nn.LSTM(word_vect_dimension, lstm_output_dim, bidirectional= is_bidirectional, batch_first=True)
         self.lstm2 = nn.LSTM(lstm_output_dim * direction_count, lstm_output_dim, bidirectional = is_bidirectional , batch_first=True)
-
+        self.lstm3 = nn.LSTM(lstm_output_dim * direction_count, lstm_output_dim, bidirectional = is_bidirectional , batch_first=True)
+        
         print('Creating linear')
-        num_of_previous_layers = 2
-        linear_in_out_dim = num_of_previous_layers * lstm_output_dim  * direction_count
+        num_of_pooling_layers = 2
+        linear_in_out_dim = num_of_pooling_layers * lstm_output_dim  * direction_count
 
         self.linear1 = nn.Linear(linear_in_out_dim, linear_in_out_dim)
         self.linear2 = nn.Linear(linear_in_out_dim, linear_in_out_dim)
@@ -81,11 +81,12 @@ class NeuralNet(nn.Module):
 
         h_lstm1, _ = self.lstm1(h_embedding)
         h_lstm2, _ = self.lstm2(h_lstm1)
+        h_lstm3, _ = self.lstm3(h_lstm2)
 
         # global average pooling
-        avg_pool = torch.mean(h_lstm2, 1)
+        avg_pool = torch.mean(h_lstm3, 1)
         # global max pooling
-        max_pool, _ = torch.max(h_lstm2, 1)
+        max_pool, _ = torch.max(h_lstm3, 1)
 
         h_conc = torch.cat((max_pool, avg_pool), 1)
         h_conc_linear1  = F.relu(self.linear1(h_conc))
@@ -101,7 +102,14 @@ class NeuralNet(nn.Module):
         return out
 
 class SpatialDropout(nn.Dropout2d):
+
     def forward(self, x):
+        """
+        N: sample dimension (equal to the batch size)
+        T: time dimension (equal to MAX_LEN)
+        K: feature dimension (equal to 300 because of the 300d embeddings)
+        
+        """
         x = x.unsqueeze(2)    # (N, T, 1, K)
         x = x.permute(0, 3, 2, 1)  # (N, K, 1, T)
         x = super(SpatialDropout, self).forward(x)  # (N, K, 1, T), some features are masked
