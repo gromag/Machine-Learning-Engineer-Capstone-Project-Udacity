@@ -21,9 +21,7 @@ Having tools that are able to flag up toxic content without suffering from unint
 
 ### Project Report
 
-```
-Project-Report.pdf
-```
+Download the [Project-Report.pdf](./Project-Report.pdf)
 
 ### Acquiring the data
 
